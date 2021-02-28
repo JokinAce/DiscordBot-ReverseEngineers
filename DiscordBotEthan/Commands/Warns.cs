@@ -2,16 +2,23 @@
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace DiscordBotEthan.Commands {
 
     public class Warns : BaseCommandModule {
 
-        [Command("Warns"), Description("You can clear, add or show Warnings on a Member"), RequirePermissions(DSharpPlus.Permissions.Administrator)]
+        [Command("Warns"), Description("You can clear, add or show Warnings on a Member")]
         public async Task WarnssCommand(CommandContext ctx, [Description("Method to do (clear/show/add)")] string method, [Description("Member to perform on")] DiscordMember member, [RemainingText, Description("Reason for the warn if method is add")] string reason = "No reason specified") {
             switch (method.ToLower()) {
                 case "clear": {
+                        if (!Misc.HasAdmin(ctx.Member))
+#pragma warning disable UnhandledExceptions // Unhandled exception(s)
+                            throw new DSharpPlus.CommandsNext.Exceptions.ChecksFailedException(ctx.Command, ctx, new List<CheckBaseAttribute>());
+#pragma warning restore UnhandledExceptions // Unhandled exception(s)
+
+
                         var WarnS = await Program.PlayerSystem.GetPlayer(member.Id);
                         WarnS.Warns.Clear();
                         await WarnS.Save(member.Id);
@@ -42,6 +49,11 @@ namespace DiscordBotEthan.Commands {
                     }
 
                 case "add":
+                    if (!Misc.HasAdmin(ctx.Member))
+#pragma warning disable UnhandledExceptions // Unhandled exception(s)
+                        throw new DSharpPlus.CommandsNext.Exceptions.ChecksFailedException(ctx.Command, ctx, new List<CheckBaseAttribute>());
+#pragma warning restore UnhandledExceptions // Unhandled exception(s)
+
                     await Misc.Warn(ctx.Channel, member, reason);
                     break;
 

@@ -9,6 +9,19 @@ namespace DiscordBotEthan {
 
     public static class Misc {
 
+        public static bool HasAdmin(DiscordMember member) {
+            if (member.IsOwner)
+                return true;
+
+            bool result = false;
+
+            foreach (var Role in member.Roles) {
+                if (Role.CheckPermission(DSharpPlus.Permissions.Administrator) == DSharpPlus.PermissionLevel.Allowed)
+                    result = true;
+            }
+            return result;
+        }
+
         public static async Task Warn(DiscordChannel channel, DiscordUser member, string reason) {
             var WarnS = await PlayerSystem.GetPlayer(member.Id);
 
