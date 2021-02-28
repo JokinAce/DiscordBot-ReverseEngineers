@@ -7,9 +7,8 @@ using static DiscordBotEthan.Program;
 
 namespace DiscordBotEthan {
 
-    public static class Misc {
-
-        public static bool HasAdmin(DiscordMember member) {
+    public static class Extensions {
+        public static bool HasAdmin(this DiscordMember member) {
             if (member.IsOwner)
                 return true;
 
@@ -21,6 +20,9 @@ namespace DiscordBotEthan {
             }
             return result;
         }
+    }
+
+    public static class Misc {
 
         public static async Task Warn(DiscordChannel channel, DiscordUser member, string reason) {
             var WarnS = await PlayerSystem.GetPlayer(member.Id);

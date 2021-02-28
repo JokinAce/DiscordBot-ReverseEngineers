@@ -13,7 +13,7 @@ namespace DiscordBotEthan.Commands {
         public async Task WarnssCommand(CommandContext ctx, [Description("Method to do (clear/show/add)")] string method, [Description("Member to perform on")] DiscordMember member, [RemainingText, Description("Reason for the warn if method is add")] string reason = "No reason specified") {
             switch (method.ToLower()) {
                 case "clear": {
-                        if (!Misc.HasAdmin(ctx.Member))
+                        if (!ctx.Member.HasAdmin())
 #pragma warning disable UnhandledExceptions // Unhandled exception(s)
                             throw new DSharpPlus.CommandsNext.Exceptions.ChecksFailedException(ctx.Command, ctx, new List<CheckBaseAttribute>());
 #pragma warning restore UnhandledExceptions // Unhandled exception(s)
@@ -49,7 +49,7 @@ namespace DiscordBotEthan.Commands {
                     }
 
                 case "add":
-                    if (!Misc.HasAdmin(ctx.Member))
+                    if (!ctx.Member.HasAdmin())
 #pragma warning disable UnhandledExceptions // Unhandled exception(s)
                         throw new DSharpPlus.CommandsNext.Exceptions.ChecksFailedException(ctx.Command, ctx, new List<CheckBaseAttribute>());
 #pragma warning restore UnhandledExceptions // Unhandled exception(s)
