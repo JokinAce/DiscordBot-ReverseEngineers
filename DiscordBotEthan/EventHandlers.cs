@@ -102,11 +102,11 @@ namespace DiscordBotEthan {
 
         public static async Task Commands_CommandErrored(CommandsNextExtension sender, CommandErrorEventArgs args) {
             switch (args.Exception) {
-                case ArgumentException _:
+                case ArgumentException e:
                     //await args.Context.RespondAsync("Idk what the fuck you want to do with that Command (Arguments are faulty)");
 
                     await new DiscordMessageBuilder()
-                        .WithContent("Idk what the fuck you want to do with that Command (Arguments are faulty)")
+                        .WithContent($"Idk what the fuck you want to do with that Command (Argument {e.ParamName ?? "unknown"} is faulty)")
                         .WithReply(args.Context.Message.Id, true)
                         .SendAsync(args.Context.Channel);
                     break;

@@ -30,7 +30,7 @@ namespace DiscordBotEthan.Commands {
                     await ctx.RespondAsync("Something horrible happend, Command faulted");
                 }
             } else {
-                throw new ArgumentException();
+                throw new ArgumentException("Argument is missing or is invalid", "amount");
             }
         }
     }

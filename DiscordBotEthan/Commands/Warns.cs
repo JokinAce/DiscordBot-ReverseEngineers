@@ -9,7 +9,7 @@ namespace DiscordBotEthan.Commands {
 
     public class Warns : BaseCommandModule {
 
-        [Command("Warns"), Description("You can clear, add or show Warnings on a Member")]
+        [Command("Warns"), Description("You can clear, add or show Warnings on a Member"), Aliases(new string[] { "warn", "warnings"})]
         public async Task WarnssCommand(CommandContext ctx, [Description("Method to do (clear/show/add)")] string method, [Description("Member to perform on")] DiscordMember member, [RemainingText, Description("Reason for the warn if method is add")] string reason = "No reason specified") {
             switch (method.ToLower()) {
                 case "clear": {
@@ -58,7 +58,7 @@ namespace DiscordBotEthan.Commands {
                     break;
 
                 default:
-                    throw new ArgumentException();
+                    throw new ArgumentException("Argument is missing or is invalid", "method");
             }
         }
     }
