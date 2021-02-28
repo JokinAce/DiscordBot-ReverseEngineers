@@ -21,6 +21,7 @@ namespace DiscordBotEthan.Commands {
             };
             await ctx.RespondAsync(embed: Reminder);
 
+
             _ = Task.Run(async () => {
                 await Task.Delay((int)Time);
                 await ctx.RespondAsync($":alarm_clock:, {ctx.Member.Mention} you wanted me to remind you the following:\n\n{What}");
