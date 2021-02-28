@@ -15,7 +15,7 @@ namespace DiscordBotEthan.Commands {
             PS.Muted = true;
             await PS.Save(member.Id);
 
-            double Time = Misc.TimeConverter(time);
+            double Time = JokinsCommon.Methods.TimeConverter(time);
 
             DiscordEmbedBuilder TempMute = new DiscordEmbedBuilder {
                 Title = $"TempMute | {member.Username}",

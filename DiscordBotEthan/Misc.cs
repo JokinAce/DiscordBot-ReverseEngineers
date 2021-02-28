@@ -7,41 +7,22 @@ using static DiscordBotEthan.Program;
 
 namespace DiscordBotEthan {
 
+    public static class Extensions {
+        public static bool HasAdmin(this DiscordMember member) {
+            if (member.IsOwner)
+                return true;
+
+            bool result = false;
+
+            foreach (var Role in member.Roles) {
+                if (Role.CheckPermission(DSharpPlus.Permissions.Administrator) == DSharpPlus.PermissionLevel.Allowed)
+                    result = true;
+            }
+            return result;
+        }
+    }
+
     public static class Misc {
-
-        public static string Fuck(this string str, string what) {
-            return str.Replace(what, null);
-        }
-
-        public static double TimeConverter(string timestring) { // Takes 7d -> 7 DaysConverter() -> 604,800,000 Milliseconds
-            if (timestring.Remove(timestring.Length - 1).Any(x => char.IsLetter(x)))
-                throw new ArgumentException();
-            else {
-                return (timestring[^1..].ToLower()) switch {
-                    "d" => ConvertDaysToMilliseconds(timestring.Remove(timestring.Length - 1).Replace(".", ",")),
-                    "h" => ConvertHoursToMilliseconds(timestring.Remove(timestring.Length - 1).Replace(".", ",")),
-                    "m" => ConvertMinutesToMilliseconds(timestring.Remove(timestring.Length - 1).Replace(".", ",")),
-                    "s" => ConvertSecondsToMilliseconds(timestring.Remove(timestring.Length - 1).Replace(".", ",")),
-                    _ => throw new ArgumentException()
-                };
-            }
-
-            static double ConvertSecondsToMilliseconds(string seconds) { // NUMBERS ONLY
-                return TimeSpan.FromSeconds(Convert.ToDouble(seconds)).TotalMilliseconds;
-            }
-
-            static double ConvertMinutesToMilliseconds(string minutes) {
-                return TimeSpan.FromMinutes(Convert.ToDouble(minutes)).TotalMilliseconds;
-            }
-
-            static double ConvertHoursToMilliseconds(string hours) {
-                return TimeSpan.FromHours(Convert.ToDouble(hours)).TotalMilliseconds;
-            }
-
-            static double ConvertDaysToMilliseconds(string days) {
-                return TimeSpan.FromDays(Convert.ToDouble(days)).TotalMilliseconds;
-            }
-        }
 
         public static async Task Warn(DiscordChannel channel, DiscordUser member, string reason) {
             var WarnS = await PlayerSystem.GetPlayer(member.Id);

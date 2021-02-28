@@ -6,6 +6,7 @@ using System;
 using System.Net;
 using System.Threading.Tasks;
 using static DiscordBotEthan.Program;
+using JokinsCommon;
 
 namespace DiscordBotEthan {
 
@@ -61,7 +62,7 @@ namespace DiscordBotEthan {
                             await Misc.Warn(args.Channel, args.Author, "Uploading a EXE File");
                         }
                     }
-                } else if (args.Message.Content.Fuck(" ").Fuck(".").ToLower().Contains("discordgg")) {
+                } else if (args.Message.Content.RemoveString(new string[] { " ", "." }).ToLower().Contains("discordgg")) {
                     await args.Message.DeleteAsync();
                     await Misc.Warn(args.Channel, args.Author, "Invite Link");
                 } else if (args.Message.Content.ToLower().Contains("nigger") || args.Message.Content.ToLower().Contains("nigga")) {
@@ -101,18 +102,18 @@ namespace DiscordBotEthan {
 
         public static async Task Commands_CommandErrored(CommandsNextExtension sender, CommandErrorEventArgs args) {
             switch (args.Exception) {
-                case ArgumentException _:
+                case ArgumentException e:
                     //await args.Context.RespondAsync("Idk what the fuck you want to do with that Command (Arguments are faulty)");
 
                     await new DiscordMessageBuilder()
-                        .WithContent("Idk what the fuck you want to do with that Command (Arguments are faulty)")
+                        .WithContent($"Idk what the fuck you want to do with that Command (Argument {e.ParamName ?? "unknown"} is faulty)")
                         .WithReply(args.Context.Message.Id, true)
                         .SendAsync(args.Context.Channel);
                     break;
 
                 case DSharpPlus.CommandsNext.Exceptions.ChecksFailedException _:
                     await new DiscordMessageBuilder()
-                        .WithContent("The FBI has been contacted (You don't have **the** (Thx Sven for correction) rights for that **c**ommand (Another correction))")
+                        .WithContent("The FBI has been contacted (You don't have the rights for that command)")
                         .WithReply(args.Context.Message.Id, true)
                         .SendAsync(args.Context.Channel);
 

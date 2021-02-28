@@ -11,6 +11,12 @@
     <PackageReference Include="DSharpPlus.CommandsNext" Version="4.0.0-rc2" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="JokinsCommon">
+      <HintPath>..\..\JokinsCommon.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
   <ProjectExtensions><VisualStudio><UserProperties players_4playertemplate_1json__JsonSchema="https://json.schemastore.org/config" /></VisualStudio></ProjectExtensions>
 
 </Project>
