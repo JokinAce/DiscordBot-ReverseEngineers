@@ -1,12 +1,12 @@
 ﻿using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.Entities;
+using JokinsCommon;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Net;
 using System.Threading.Tasks;
 using static DiscordBotEthan.Program;
-using JokinsCommon;
 
 namespace DiscordBotEthan {
 

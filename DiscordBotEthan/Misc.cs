@@ -1,26 +1,10 @@
 ﻿using DSharpPlus.Entities;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 using static DiscordBotEthan.Program;
 
 namespace DiscordBotEthan {
-
-    public static class Extensions {
-        public static bool HasAdmin(this DiscordMember member) {
-            if (member.IsOwner)
-                return true;
-
-            bool result = false;
-
-            foreach (var Role in member.Roles) {
-                if (Role.CheckPermission(DSharpPlus.Permissions.Administrator) == DSharpPlus.PermissionLevel.Allowed)
-                    result = true;
-            }
-            return result;
-        }
-    }
 
     public static class Misc {
 
