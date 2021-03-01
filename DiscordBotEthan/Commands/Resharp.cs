@@ -39,7 +39,7 @@ namespace DiscordBotEthan.Commands {
                 var result = await script.RunAsync(globals).ConfigureAwait(false);
 
                 if (result != null && result.ReturnValue != null && !string.IsNullOrWhiteSpace(result.ReturnValue.ToString()))
-                    await ctx.RespondAsync("Returned: \n" + result.ReturnValue.ToString()).ConfigureAwait(false);
+                    await ctx.RespondAsync("Returned:\n" + result.ReturnValue.ToString()).ConfigureAwait(false);
                 else
                     await ctx.RespondAsync("No error but no return either").ConfigureAwait(false);
             } catch (Exception ex) {
