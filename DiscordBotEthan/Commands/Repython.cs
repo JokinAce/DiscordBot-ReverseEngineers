@@ -1,5 +1,6 @@
 ﻿using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
+using DSharpPlus.Entities;
 using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
@@ -33,14 +34,25 @@ namespace DiscordBotEthan.Commands {
                     }
                 };
 
-                proc.Start();
-                proc.WaitForExit();
+                if (!proc.Start() || !proc.WaitForExit(5000)) {
+                    proc.Kill();
+                    await ctx.RespondAsync("Timeout");
+                    return;
+                }
+                
                 var result = await proc.StandardOutput.ReadToEndAsync().ConfigureAwait(false);
 
                 if (result != null && !string.IsNullOrWhiteSpace(result)) {
-                    await ctx.RespondAsync("Result:\n" + result).ConfigureAwait(false);
+                    DiscordEmbedBuilder exec = new DiscordEmbedBuilder {
+                        Title = $"Execution | Result",
+                        Description = result,
+                        Color = Program.EmbedColor,
+                        Footer = new DiscordEmbedBuilder.EmbedFooter { Text = "Made by JokinAce 😎" },
+                        Timestamp = DateTimeOffset.Now
+                    };
+                    await ctx.RespondAsync(embed: exec).ConfigureAwait(false);
                 } else {
-                    await ctx.RespondAsync("No error but no return either").ConfigureAwait(false);
+                    await ctx.RespondAsync("No C# error but no result either").ConfigureAwait(false);
                 }
             } catch (Exception ex) {
                 await ctx.RespondAsync("You fucked up\n" + string.Concat("**", ex.GetType().ToString(), "**: ", ex.Message)).ConfigureAwait(false);
