@@ -18,7 +18,7 @@ namespace DiscordBotEthan {
         public static DiscordColor EmbedColor = new DiscordColor("#3299E0");
         public static readonly ulong MutedRole = 765286908133638204;
         public static readonly ulong LearnerRole = 734242782092329101;
-        public static readonly string[] Statuses = new[] { "Allah is watchin", "Despacito", "Fuck", "Janitor cleanup", "CSGO and Cheating", "EAC Bypass" };
+        public static readonly string[] Statuses = { "Allah is watchin", "Despacito", "Fuck", "Janitor cleanup", "CSGO and Cheating", "EAC Bypass" };
 
         private static void Main() {
             Console.WriteLine("Started");
