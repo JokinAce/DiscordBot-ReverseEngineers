@@ -8,7 +8,7 @@ namespace DiscordBotEthan.Commands {
 
     public class Remindme : BaseCommandModule {
 
-        [Command("Remindme"), Description("Remind yourself something in the future")]
+        [Command("Remindme"), Cooldown(1, 20, CooldownBucketType.User), Description("Remind yourself something in the future")]
         public async Task RemindmeCommand(CommandContext ctx, [Description("When to remind you (d/h/m/s) Ex. 7d for 7 Days")] string When, [Description("What to remind you to"), RemainingText] string What = "No reminder message specified") {
             double Time = JokinsCommon.Methods.TimeConverter(When);
 

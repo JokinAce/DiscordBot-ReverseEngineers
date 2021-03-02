@@ -4,12 +4,12 @@ using DSharpPlus.CommandsNext.Converters;
 using DSharpPlus.CommandsNext.Entities;
 using DSharpPlus.Entities;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
+using System.Text.Json;
 
 namespace DiscordBotEthan {
 
@@ -49,26 +49,24 @@ namespace DiscordBotEthan {
             await Task.Delay(-1);
         }
 
-        public struct PlayerSystem {
 
-            [JsonProperty("LastMessages")]
+        public class PlayerSystem {
             public List<string> LastMessages { get; set; }
-
-            [JsonProperty("Warns")]
             public List<string> Warns { get; set; }
-
-            [JsonProperty("Muted")]
             public bool Muted { get; set; }
 
             public static async Task<PlayerSystem> GetPlayer(ulong id) {
-                if (!File.Exists($"./Players/{id}.json"))
-                    return JsonConvert.DeserializeObject<PlayerSystem>(await File.ReadAllTextAsync($"./Players/playertemplate.json"));
+                if (!File.Exists($"./Players/{id}.json")) {
+                    using FileStream DefaultStream = File.OpenRead("./Players/playertemplate.json");
+                    return await JsonSerializer.DeserializeAsync<PlayerSystem>(DefaultStream);
+                }
 
-                return JsonConvert.DeserializeObject<PlayerSystem>(await File.ReadAllTextAsync($"./Players/{id}.json"));
+                using FileStream PlayersStream = File.OpenRead($"./Players/{id}.json");
+                return await JsonSerializer.DeserializeAsync<PlayerSystem>(PlayersStream);
             }
 
             public async Task Save(ulong id) {
-                await File.WriteAllTextAsync($"./Players/{id}.json", JsonConvert.SerializeObject(this));
+                await File.WriteAllTextAsync($"./Players/{id}.json", JsonSerializer.Serialize(this));
             }
         }
 
