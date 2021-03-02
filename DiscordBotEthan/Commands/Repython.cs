@@ -9,7 +9,7 @@ namespace DiscordBotEthan.Commands {
 
     public class Repython : BaseCommandModule {
 
-        [Command("Repython"), RequireRoles(RoleCheckMode.Any, "coder", "C# Global Elite"),Hidden]
+        [Command("Repython"), RequireRoles(RoleCheckMode.Any, "coder", "C# Global Elite"), Hidden]
         public async Task RepythonCommand(CommandContext ctx, [RemainingText] string code) {
             var cs1 = code.IndexOf("```") + 3;
             cs1 = code.IndexOf('\n', cs1) + 1;
@@ -39,7 +39,7 @@ namespace DiscordBotEthan.Commands {
                     await ctx.RespondAsync("Timeout");
                     return;
                 }
-                
+
                 var result = await proc.StandardOutput.ReadToEndAsync().ConfigureAwait(false);
 
                 if (result != null && !string.IsNullOrWhiteSpace(result)) {

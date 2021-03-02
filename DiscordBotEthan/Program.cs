@@ -5,11 +5,8 @@ using DSharpPlus.CommandsNext.Entities;
 using DSharpPlus.Entities;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
-using System.Text.Json;
 
 namespace DiscordBotEthan {
 
@@ -47,27 +44,6 @@ namespace DiscordBotEthan {
 
             await discord.ConnectAsync();
             await Task.Delay(-1);
-        }
-
-
-        public class PlayerSystem {
-            public List<string> LastMessages { get; set; }
-            public List<string> Warns { get; set; }
-            public bool Muted { get; set; }
-
-            public static async Task<PlayerSystem> GetPlayer(ulong id) {
-                if (!File.Exists($"./Players/{id}.json")) {
-                    using FileStream DefaultStream = File.OpenRead("./Players/playertemplate.json");
-                    return await JsonSerializer.DeserializeAsync<PlayerSystem>(DefaultStream);
-                }
-
-                using FileStream PlayersStream = File.OpenRead($"./Players/{id}.json");
-                return await JsonSerializer.DeserializeAsync<PlayerSystem>(PlayersStream);
-            }
-
-            public async Task Save(ulong id) {
-                await File.WriteAllTextAsync($"./Players/{id}.json", JsonSerializer.Serialize(this));
-            }
         }
 
         public class CustomHelpFormatter : DefaultHelpFormatter {
