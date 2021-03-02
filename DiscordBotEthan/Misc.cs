@@ -9,7 +9,7 @@ namespace DiscordBotEthan {
     public static class Misc {
 
         public static async Task Warn(DiscordChannel channel, DiscordUser member, string reason) {
-            var WarnS = await PlayerSystem.GetPlayer(member.Id);
+            var WarnS = await Players.SQLiteController.GetPlayer(member.Id);
 
             bool LocalMute = false;
 
@@ -21,9 +21,9 @@ namespace DiscordBotEthan {
                         await CMember.GrantRoleAsync(muterole);
                         await CMember.SendMessageAsync("You got muted for 24 Hours because you have equal or more then 3 Warns.");
                         await Task.Delay(86400000);
-                        var WarnS = await PlayerSystem.GetPlayer(member.Id);
+                        var WarnS = await Players.SQLiteController.GetPlayer(member.Id);
                         WarnS.Muted = false;
-                        await WarnS.Save(member.Id);
+                        await WarnS.Save();
                         await CMember.RevokeRoleAsync(muterole);
                     } catch (Exception) {
                         discord.Logger.LogInformation($"Failed the Warn Tempmute process for {member.Mention}");
@@ -43,7 +43,7 @@ namespace DiscordBotEthan {
             var msg = await channel.SendMessageAsync(embed: Warns);
 
             WarnS.Warns.Add($"{reason} | [Event]({msg.JumpLink})");
-            await WarnS.Save(member.Id);
+            await WarnS.Save();
         }
     }
 }

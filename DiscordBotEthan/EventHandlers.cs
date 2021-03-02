@@ -34,7 +34,7 @@ namespace DiscordBotEthan {
                 if (args.Author.IsBot)
                     return;
 
-                var PS = await Program.PlayerSystem.GetPlayer(args.Author.Id);
+                var PS = await Players.SQLiteController.GetPlayer(args.Author.Id);
                 if (PS.LastMessages.Count > 1 && PS.LastMessages.Contains(args.Message.Content)) {
                     await Misc.Warn(args.Channel, args.Author, "Spamming");
                     PS.Warns.Add("Spamming");
@@ -45,7 +45,7 @@ namespace DiscordBotEthan {
                     PS.LastMessages.Clear();
                     PS.LastMessages.Add(args.Message.Content);
                 }
-                await PS.Save(args.Author.Id);
+                await PS.Save();
 
                 if (new Random().Next(500) == 1) {
                     using WebClient client = new WebClient();
@@ -82,16 +82,16 @@ namespace DiscordBotEthan {
         public static async Task Discord_GuildMemberAdded(DiscordClient dc, DSharpPlus.EventArgs.GuildMemberAddEventArgs args) {
             await args.Member.GrantRoleAsync(args.Guild.GetRole(LearnerRole));
 
-            var PS = await PlayerSystem.GetPlayer(args.Member.Id);
+            var PS = await Players.SQLiteController.GetPlayer(args.Member.Id);
             if (PS.Muted) {
                 _ = Task.Run(async () => {
                     try {
                         DiscordRole MutedRole = args.Guild.GetRole(Program.MutedRole);
                         await args.Member.GrantRoleAsync(MutedRole);
                         await Task.Delay(86400000);
-                        var PS = await PlayerSystem.GetPlayer(args.Member.Id);
+                        var PS = await Players.SQLiteController.GetPlayer(args.Member.Id);
                         PS.Muted = false;
-                        await PS.Save(args.Member.Id);
+                        await PS.Save();
                         await args.Member.RevokeRoleAsync(MutedRole);
                     } catch (Exception) {
                         dc.Logger.LogInformation($"Failed the Mute Bypass detection process for {args.Member.Mention}");

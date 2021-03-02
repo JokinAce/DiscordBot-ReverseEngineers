@@ -11,7 +11,7 @@ namespace DiscordBotEthan.Commands {
 
         [GroupCommand, Description("Shows all warns for said Member")]
         public async Task WarnsShowCommand(CommandContext ctx, [Description("The Member as Mention or ID/Username")] DiscordMember member) {
-            var WarnS = await Program.PlayerSystem.GetPlayer(member.Id);
+            var WarnS = await Players.SQLiteController.GetPlayer(member.Id);
 
             DiscordEmbedBuilder Warns = new DiscordEmbedBuilder {
                 Title = $"Warns | {member.Username}",
@@ -25,9 +25,9 @@ namespace DiscordBotEthan.Commands {
 
         [Command("clear"), Description("Clears all warns for said Member"), RequirePermissions(DSharpPlus.Permissions.Administrator)]
         public async Task WarnsClearCommand(CommandContext ctx, [Description("The Member as Mention or ID/Username")] DiscordMember member) {
-            var WarnS = await Program.PlayerSystem.GetPlayer(member.Id);
+            var WarnS = await Players.SQLiteController.GetPlayer(member.Id);
             WarnS.Warns.Clear();
-            await WarnS.Save(member.Id);
+            await WarnS.Save();
 
             DiscordEmbedBuilder Warns = new DiscordEmbedBuilder {
                 Title = $"Warns | {member.Username}",

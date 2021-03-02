@@ -11,9 +11,9 @@ namespace DiscordBotEthan.Commands {
 
         [Command("Tempmute"), RequirePermissions(DSharpPlus.Permissions.Administrator), Description("Temporarily mutes the User")]
         public async Task TempmuteCommand(CommandContext ctx, [Description("The Member to mute (ID, Mention, Username)")] DiscordMember member, [RemainingText, Description("Length (d/h/m/s) Ex. 7d for 7 Days")] string time) {
-            var PS = await Program.PlayerSystem.GetPlayer(member.Id);
+            var PS = await Players.SQLiteController.GetPlayer(member.Id);
             PS.Muted = true;
-            await PS.Save(member.Id);
+            await PS.Save();
 
             double Time = JokinsCommon.Methods.TimeConverter(time);
 
@@ -31,9 +31,9 @@ namespace DiscordBotEthan.Commands {
                     DiscordRole MutedRole = ctx.Guild.GetRole(Program.MutedRole);
                     await member.GrantRoleAsync(MutedRole);
                     await Task.Delay((int)Time);
-                    var PS = await Program.PlayerSystem.GetPlayer(member.Id);
+                    var PS = await Players.SQLiteController.GetPlayer(member.Id);
                     PS.Muted = false;
-                    await PS.Save(member.Id);
+                    await PS.Save();
                     await member.RevokeRoleAsync(MutedRole);
                 } catch (Exception) {
                     ctx.Client.Logger.LogInformation($"Failed the Tempmute process for {member.Mention}");
