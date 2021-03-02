@@ -5,11 +5,8 @@ using DSharpPlus.CommandsNext.Entities;
 using DSharpPlus.Entities;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
-using System.Text.Json;
 
 namespace DiscordBotEthan {
 
