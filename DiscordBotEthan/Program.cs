@@ -5,6 +5,7 @@ using DSharpPlus.CommandsNext.Entities;
 using DSharpPlus.Entities;
 using Microsoft.Extensions.Logging;
 using System;
+using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
 
@@ -16,9 +17,20 @@ namespace DiscordBotEthan {
         public static readonly ulong MutedRole = 765286908133638204;
         public static readonly ulong LearnerRole = 734242782092329101;
         public static readonly string[] Statuses = { "Allah is watchin", "Despacito", "Fuck", "Janitor cleanup", "CSGO and Cheating", "EAC Bypass" };
+        public static readonly string ConnString = @$"Data Source={Path.Join("Players","Players.db")}; Version=3;";
 
         private static void Main() {
-            Console.WriteLine("Started");
+            Console.WriteLine("Starting");
+
+            if (!File.Exists(Path.Join("Players", "Players.db"))) {
+                Console.WriteLine("The Database is missing (Players.db)");
+                Console.ReadLine();
+                return;
+            } else {
+                Console.WriteLine("No Errors");
+            }
+
+            Console.WriteLine("Starting Bot");
             MainAsync().ConfigureAwait(false).GetAwaiter().GetResult();
         }
 

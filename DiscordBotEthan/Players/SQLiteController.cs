@@ -5,6 +5,7 @@ using System.Data;
 using System.Data.SQLite;
 using System.Linq;
 using System.Threading.Tasks;
+using static DiscordBotEthan.Program;
 
 namespace DiscordBotEthan.Players {
 
@@ -22,11 +23,11 @@ namespace DiscordBotEthan.Players {
         }
 
         public static async Task<Player> GetPlayer(ulong ID) {
-            using IDbConnection cnn = new SQLiteConnection(@"Data Source=./Players/Players.db; Version=3;");
+            using IDbConnection cnn = new SQLiteConnection(ConnString);
             var output = await cnn.QueryAsync($"SELECT * FROM Players WHERE ID={ID}", new DynamicParameters()).ConfigureAwait(false);
 
             if (!output.Any()) {
-                await cnn.ExecuteAsync($"INSERT INTO Players (ID, Muted) VALUES ({ID}, 0)").ConfigureAwait(false);
+                await cnn.ExecuteAsync($"INSERT INTO Players (ID) VALUES ({ID})").ConfigureAwait(false);
                 return new Player();
             }
 
@@ -49,7 +50,7 @@ namespace DiscordBotEthan.Players {
         }
 
         public static async Task Save(Player player) {
-            using IDbConnection cnn = new SQLiteConnection(@"Data Source=./Players/Players.db;Version=3;");
+            using IDbConnection cnn = new SQLiteConnection(ConnString);
             var args = new Dictionary<string, object>{
                 {"@id", player.ID},
                 {"@lastmessages", player.LastMessages},
