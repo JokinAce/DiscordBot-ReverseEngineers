@@ -37,6 +37,7 @@ namespace DiscordBotEthan {
                 var PS = await Program.PlayerSystem.GetPlayer(args.Author.Id);
                 if (PS.LastMessages.Count > 1 && PS.LastMessages.Contains(args.Message.Content)) {
                     await Misc.Warn(args.Channel, args.Author, "Spamming");
+                    PS.Warns.Add("Spamming");
                     PS.LastMessages.Clear();
                 } else if (PS.LastMessages.Contains(args.Message.Content)) {
                     PS.LastMessages.Add(args.Message.Content);
@@ -72,7 +73,6 @@ namespace DiscordBotEthan {
                         .WithContent("Keep up the racism and you will get banned\nUse nig, nibba instead atleast")
                         .WithReply(args.Message.Id, true)
                         .SendAsync(args.Channel);
-                    //await args.Channel.SendMessageAsync("Keep up the racism and you will get banned\nUse nig, nibba instead atleast");
                 }
             });
 
@@ -103,7 +103,6 @@ namespace DiscordBotEthan {
         public static async Task Commands_CommandErrored(CommandsNextExtension sender, CommandErrorEventArgs args) {
             switch (args.Exception) {
                 case ArgumentException e:
-                    //await args.Context.RespondAsync("Idk what the fuck you want to do with that Command (Arguments are faulty)");
 
                     await new DiscordMessageBuilder()
                         .WithContent($"Idk what the fuck you want to do with that Command (Argument {e.ParamName ?? "unknown"} is faulty)")
@@ -117,7 +116,6 @@ namespace DiscordBotEthan {
                         .WithReply(args.Context.Message.Id, true)
                         .SendAsync(args.Context.Channel);
 
-                    //await args.Context.RespondAsync("The FBI has been contacted (You don't have **the** (Thx Sven for correction) rights for that **c**ommand (Another correction))");
                     break;
             }
         }
