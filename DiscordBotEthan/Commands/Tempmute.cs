@@ -9,7 +9,7 @@ namespace DiscordBotEthan.Commands {
 
     public class Tempmute : BaseCommandModule {
 
-        [Command("Tempmute"), RequirePermissions(DSharpPlus.Permissions.Administrator), Description("Temporarily mutes the User")]
+        [Command("Tempmute"), RequirePermissions(DSharpPlus.Permissions.Administrator), Cooldown(1, 15, CooldownBucketType.User), Description("Temporarily mutes the User")]
         public async Task TempmuteCommand(CommandContext ctx, [Description("The Member to mute (ID, Mention, Username)")] DiscordMember member, [RemainingText, Description("Length (d/h/m/s) Ex. 7d for 7 Days")] string time) {
             var PS = await Program.PlayerSystem.GetPlayer(member.Id);
             PS.Muted = true;
