@@ -9,7 +9,7 @@ namespace DiscordBotEthan.Commands {
     [Group("Warns"), Aliases("Warn", "Warnings")]
     public class Warns : BaseCommandModule {
 
-        [GroupCommand, Description("Shows all warns for said Member")]
+        [GroupCommand, Aliases("show"), Description("Shows all warns for said Member")]
         public async Task WarnsShowCommand(CommandContext ctx, [Description("The Member as Mention or ID/Username")] DiscordMember member) {
             var WarnS = await Program.PlayerSystem.GetPlayer(member.Id);
 
