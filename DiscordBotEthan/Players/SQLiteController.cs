@@ -24,29 +24,27 @@ namespace DiscordBotEthan.Players {
 
         public static async Task<Player> GetPlayer(ulong ID) {
             using IDbConnection cnn = new SQLiteConnection(ConnString);
-            var output = await cnn.QueryAsync($"SELECT * FROM Players WHERE ID={ID}", new DynamicParameters()).ConfigureAwait(false);
+            var output = await cnn.QuerySingleOrDefaultAsync($"SELECT * FROM Players WHERE ID={ID}").ConfigureAwait(false);
 
-            if (!output.Any()) {
+            if (output == null) {
                 await cnn.ExecuteAsync($"INSERT INTO Players (ID) VALUES ({ID})").ConfigureAwait(false);
                 return new Player();
             }
 
-            Player player = new Player();
-            foreach (var item in output) {
-                long IDc = item.ID;
-                string LastMessages = item.LastMessages;
-                string Warns = item.Warns;
-                long Muted = item.Muted;
+            long IDc = output.ID;
+            string LastMessages = output.LastMessages;
+            string Warns = output.Warns;
+            long Muted = output.Muted;
 
-                player = new Player {
-                    ID = (ulong)IDc,
-                    LastMessages = LastMessages.Split(",").ToList(),
-                    Warns = string.IsNullOrWhiteSpace(Warns) ? new List<string>() : Warns.Split(",").ToList(),
-                    Muted = Convert.ToBoolean(Muted)
-                };
-            }
+            Player player = new Player {
+                ID = (ulong)IDc,
+                LastMessages = string.IsNullOrEmpty(LastMessages) ? new List<string>() : LastMessages.Split(",").ToList(),
+                Warns = string.IsNullOrEmpty(Warns) ? new List<string>() : Warns.Split(",").ToList(),
+                Muted = Convert.ToBoolean(Muted)
+            };
 
             return player;
+
         }
 
         public static async Task Save(Player player) {
@@ -54,7 +52,7 @@ namespace DiscordBotEthan.Players {
             var args = new Dictionary<string, object>{
                 {"@id", player.ID},
                 {"@lastmessages", string.Join(",", player.LastMessages)},
-                {"@warns", string.Join(",", player.war)},
+                {"@warns", string.Join(",", player.Warns)},
                 {"@muted", player.Muted}
             };
             await cnn.ExecuteAsync($"UPDATE Players SET LastMessages=@lastmessages, Warns=@warns, Muted=@muted WHERE ID=@id", args);
