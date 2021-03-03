@@ -9,6 +9,7 @@ using System.Data.SQLite;
 using System.Linq;
 using System.Threading.Tasks;
 using static DiscordBotEthan.Players.SQLiteController;
+using static DiscordBotEthan.Program;
 
 namespace DiscordBotEthan.Commands {
 
@@ -16,11 +17,11 @@ namespace DiscordBotEthan.Commands {
 
         [Command("Query"), RequireOwner, Hidden]
         public async Task QueryCommand(CommandContext ctx, DiscordMember member) {
-            using IDbConnection cnn = new SQLiteConnection(@"Data Source=./Players/Players.db; Version=3;");
+            using IDbConnection cnn = new SQLiteConnection(ConnString);
             var output = await cnn.QueryAsync($"SELECT * FROM Players WHERE ID={member.Id}", new DynamicParameters()).ConfigureAwait(false);
 
             if (!output.Any()) {
-                await cnn.ExecuteAsync($"INSERT INTO Players (ID, Muted) VALUES ({member.Id}, 0)").ConfigureAwait(false);
+                await cnn.ExecuteAsync($"INSERT INTO Players (ID) VALUES ({member.Id})").ConfigureAwait(false);
                 await ctx.RespondAsync("This Member wasn't present in the DB until now");
                 return;
             }

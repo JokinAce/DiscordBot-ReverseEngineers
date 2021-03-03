@@ -26,6 +26,9 @@
     <None Update="JokinsCommon.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="Players\Players.db">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   <ProjectExtensions><VisualStudio><UserProperties players_4playertemplate_1json__JsonSchema="https://json.schemastore.org/config" /></VisualStudio></ProjectExtensions>
