@@ -53,8 +53,8 @@ namespace DiscordBotEthan.Players {
             using IDbConnection cnn = new SQLiteConnection(ConnString);
             var args = new Dictionary<string, object>{
                 {"@id", player.ID},
-                {"@lastmessages", player.LastMessages},
-                {"@warns", player.Warns},
+                {"@lastmessages", string.Join(",", player.LastMessages)},
+                {"@warns", string.Join(",", player.war)},
                 {"@muted", player.Muted}
             };
             await cnn.ExecuteAsync($"UPDATE Players SET LastMessages=@lastmessages, Warns=@warns, Muted=@muted WHERE ID=@id", args);

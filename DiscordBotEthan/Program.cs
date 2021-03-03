@@ -20,7 +20,7 @@ namespace DiscordBotEthan {
         public static readonly string ConnString = @$"Data Source={Path.Join("Players","Players.db")}; Version=3;";
 
         private static void Main() {
-            Console.WriteLine("Starting");
+            Console.WriteLine("Starting Checks");
 
             if (!File.Exists(Path.Join("Players", "Players.db"))) {
                 Console.WriteLine("The Database is missing (Players.db)");
