@@ -17,14 +17,21 @@ namespace DiscordBotEthan.Commands {
         public async Task TempmuteCommand(CommandContext ctx, [Description("The Member to mute (ID, Mention, Username)")] DiscordMember member, [RemainingText, Description("Length (d/h/m/s) Ex. 7d for 7 Days")] string time) {
             double Time = JokinsCommon.Methods.TimeConverter(time);
             DateTime dateTime = DateTime.Now.AddMilliseconds(Time);
+            DiscordRole MutedRole = ctx.Guild.GetRole(Program.MutedRole);
 
-            using IDbConnection cnn = new SQLiteConnection(Program.ConnString);
-            var output = await cnn.QueryFirstOrDefaultAsync("SELECT * FROM Tempmutes WHERE ID=@id", new { id = ctx.Member.Id }).ConfigureAwait(false);
+            var SQLC = new Players.SQLiteController();
+            var PS = await SQLC.GetPlayer(member.Id);
+            var output = await SQLC.GetTempmuteWithID((long)ctx.Member.Id);
 
             if (output != null) {
                 await ctx.RespondAsync("That Member is already muted");
                 return;
             }
+
+            PS.Muted = true;
+            await PS.Save();
+            await member.GrantRoleAsync(MutedRole);
+            await SQLC.AddTempmute((long)ctx.Member.Id, dateTime.ToBinary());
 
             DiscordEmbedBuilder TempMute = new DiscordEmbedBuilder {
                 Title = $"TempMute | {member.Username}",
@@ -35,26 +42,15 @@ namespace DiscordBotEthan.Commands {
             };
             await ctx.RespondAsync(embed: TempMute);
 
-            await cnn.ExecuteAsync("INSERT INTO Tempmutes (ID, Date) VALUES (@id, @date)", new { id = ctx.Member.Id, date = dateTime.ToBinary() }).ConfigureAwait(false);
-
-            var PS = await Players.SQLiteController.GetPlayer(member.Id);
-            PS.Muted = true;
-            await PS.Save();
-
             _ = Task.Run(async () => {
                 try {
-                    DiscordRole MutedRole = ctx.Guild.GetRole(Program.MutedRole);
-                    await member.GrantRoleAsync(MutedRole);
-
                     await Task.Delay((int)Time);
 
-                    var PS = await Players.SQLiteController.GetPlayer(member.Id);
+                    var PS = await SQLC.GetPlayer(member.Id);
                     PS.Muted = false;
+
                     await PS.Save();
-
-                    using IDbConnection cnn = new SQLiteConnection(Program.ConnString);
-                    await cnn.ExecuteAsync("DELETE FROM Tempmutes WHERE ID=@id", new { id = ctx.Member.Id }).ConfigureAwait(false);
-
+                    await SQLC.DeleteTempmutesWithID((long)member.Id);
                     await member.RevokeRoleAsync(MutedRole);
                 } catch (Exception) {
                     ctx.Client.Logger.LogInformation($"Failed the Tempmute process for {ctx.Member.Username + ctx.Member.Discriminator}");

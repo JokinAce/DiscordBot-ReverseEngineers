@@ -18,11 +18,11 @@ namespace DiscordBotEthan.Players {
             public bool Muted { get; set; }
 
             internal async Task Save() {
-                await SQLiteController.Save(this);
+                await new SQLiteController().Save(this);
             }
         }
 
-        public static async Task<Player> GetPlayer(ulong ID) {
+        public async Task<Player> GetPlayer(ulong ID) {
             using IDbConnection cnn = new SQLiteConnection(ConnString);
             var output = await cnn.QuerySingleOrDefaultAsync($"SELECT * FROM Players WHERE ID=@id", new { id = ID }).ConfigureAwait(false);
 
@@ -47,7 +47,7 @@ namespace DiscordBotEthan.Players {
 
         }
 
-        public static async Task Save(Player player) {
+        public async Task Save(Player player) {
             using IDbConnection cnn = new SQLiteConnection(ConnString);
             var args = new Dictionary<string, object>{
                 {"@id", player.ID},
@@ -55,7 +55,57 @@ namespace DiscordBotEthan.Players {
                 {"@warns", string.Join(",", player.Warns)},
                 {"@muted", player.Muted}
             };
-            await cnn.ExecuteAsync($"UPDATE Players SET LastMessages=@lastmessages, Warns=@warns, Muted=@muted WHERE ID=@id", args);
+            await cnn.ExecuteAsync($"UPDATE Players SET LastMessages=@lastmessages, Warns=@warns, Muted=@muted WHERE ID=@id", args).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Returns all Reminders from DB
+        /// </summary>
+        /// <returns>Dynamic List</returns>
+
+        public async Task<dynamic> GetReminders() {
+            using IDbConnection cnn = new SQLiteConnection(ConnString);
+            return await cnn.QueryAsync("SELECT * FROM Reminders").ConfigureAwait(false);
+        }
+
+        public async Task<dynamic> GetReminderWithID(long ID) {
+            using IDbConnection cnn = new SQLiteConnection(ConnString);
+            return await cnn.QueryFirstOrDefaultAsync("SELECT * FROM Tempmutes WHERE ID=@id", new { id = ID }).ConfigureAwait(false);
+        }
+
+        public async Task<int> AddReminder(long ID, long ChannelID, long Date, string Reminder) {
+            using IDbConnection cnn = new SQLiteConnection(ConnString);
+            return await cnn.ExecuteAsync("INSERT INTO Reminders (ID, ChannelID, Date, Reminder) VALUES (@id, @channelid, @date, @reminder)", new { id = ID, channelid = ChannelID, date = Date, reminder = Reminder }).ConfigureAwait(false);
+        }
+
+        public async Task<int> DeleteRemindersWithDate(long Date) {
+            using IDbConnection cnn = new SQLiteConnection(ConnString);
+            return await cnn.ExecuteAsync("DELETE FROM Reminders WHERE Date=@date", new { date = Date }).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Returns all Tempmutes from DB
+        /// </summary>
+        /// <returns>Dynamic List</returns>
+
+        public async Task<dynamic> GetTempmutes() {
+            using IDbConnection cnn = new SQLiteConnection(ConnString);
+            return await cnn.QueryAsync("SELECT * FROM Tempmutes").ConfigureAwait(false);
+        }
+
+        public async Task<dynamic> GetTempmuteWithID(long ID) {
+            using IDbConnection cnn = new SQLiteConnection(ConnString);
+            return await cnn.QueryFirstOrDefaultAsync("SELECT * FROM Tempmutes WHERE ID=@id", new { id = ID }).ConfigureAwait(false);
+        }
+
+        public async Task<int> AddTempmute(long ID, long Date) {
+            using IDbConnection cnn = new SQLiteConnection(ConnString);
+            return await cnn.ExecuteAsync("INSERT INTO Tempmutes (ID, Date) VALUES (@id, @date)", new { id = ID, date = Date }).ConfigureAwait(false);
+        }
+
+        public async Task<int> DeleteTempmutesWithID(long ID) {
+            using IDbConnection cnn = new SQLiteConnection(ConnString);
+            return await cnn.ExecuteAsync("DELETE FROM Tempmutes WHERE ID=@id", new { id = ID }).ConfigureAwait(false);
         }
     }
 }

@@ -20,8 +20,8 @@ namespace DiscordBotEthan.Commands {
             double Time = JokinsCommon.Methods.TimeConverter(When);
             DateTime dateTime = DateTime.Now.AddMilliseconds(Time);
 
-            using IDbConnection cnn = new SQLiteConnection(ConnString);
-            var output = await cnn.QueryAsync("SELECT * FROM Reminders WHERE ID=@id", new { id = ctx.Member.Id }).ConfigureAwait(false);
+            var SQLC = new Players.SQLiteController();
+            var output = await SQLC.GetReminderWithID((long)ctx.Member.Id);
 
             if (output.Count() == 1) {
                 await ctx.RespondAsync("You already have a Reminder running");
@@ -37,14 +37,13 @@ namespace DiscordBotEthan.Commands {
             };
             await ctx.RespondAsync(embed: Reminder);
 
-            await cnn.ExecuteAsync("INSERT INTO Reminders (ID, ChannelID, Date, Reminder) VALUES (@id, @channelid, @date, @reminder)", new { id = ctx.Member.Id, channelid = ctx.Channel.Id, date = dateTime.ToBinary(), reminder = What }).ConfigureAwait(false);
+            await SQLC.AddReminder((long)ctx.Member.Id, (long)ctx.Channel.Id, dateTime.ToBinary(), What);
 
             _ = Task.Run(async () => {
                 await Task.Delay((int)Time);
-                await ctx.RespondAsync($":alarm_clock:, {ctx.Member.Mention} you wanted me to remind you the following:\n\n{What}");
 
-                using IDbConnection cnn = new SQLiteConnection(ConnString);
-                await cnn.ExecuteAsync("DELETE FROM Reminders WHERE Date=@date", new { date = dateTime.ToBinary() });
+                await ctx.RespondAsync($":alarm_clock:, {ctx.Member.Mention} you wanted me to remind you the following:\n\n{What}");
+                await SQLC.DeleteRemindersWithDate(dateTime.ToBinary());
             });
         }
     }
