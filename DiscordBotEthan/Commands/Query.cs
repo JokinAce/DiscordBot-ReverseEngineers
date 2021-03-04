@@ -18,10 +18,10 @@ namespace DiscordBotEthan.Commands {
         [Command("Query"), RequireOwner, Hidden]
         public async Task QueryCommand(CommandContext ctx, DiscordMember member) {
             using IDbConnection cnn = new SQLiteConnection(ConnString);
-            var output = await cnn.QueryAsync($"SELECT * FROM Players WHERE ID={member.Id}", new DynamicParameters()).ConfigureAwait(false);
+            var output = await cnn.QueryAsync($"SELECT * FROM Players WHERE ID=@id", new { id = member.Id }).ConfigureAwait(false);
 
             if (!output.Any()) {
-                await cnn.ExecuteAsync($"INSERT INTO Players (ID) VALUES ({member.Id})").ConfigureAwait(false);
+                await cnn.ExecuteAsync($"INSERT INTO Players (ID) VALUES (@id)", new { id = member.Id }).ConfigureAwait(false);
                 await ctx.RespondAsync("This Member wasn't present in the DB until now");
                 return;
             }
