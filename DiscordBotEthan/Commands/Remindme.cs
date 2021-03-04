@@ -9,6 +9,7 @@ using static DiscordBotEthan.Program;
 using System.Data.SQLite;
 using System.Data;
 using Dapper;
+using Microsoft.Extensions.Logging;
 
 namespace DiscordBotEthan.Commands {
 
@@ -20,12 +21,21 @@ namespace DiscordBotEthan.Commands {
             DateTime dateTime = DateTime.Now.AddMilliseconds(Time);
 
             using IDbConnection cnn = new SQLiteConnection(ConnString);
-            var output = await cnn.QueryAsync("SELECT * FROM Reminders WHERE ID=@id", new { id = ctx.Member.Id });
+            var output = await cnn.QueryAsync("SELECT * FROM Reminders WHERE ID=@id", new { id = ctx.Member.Id }).ConfigureAwait(false);
 
             if (output.Count() == 1) {
                 await ctx.RespondAsync("You already have a Reminder running");
                 return;
             }
+
+            DiscordEmbedBuilder Reminder = new DiscordEmbedBuilder {
+                Title = $"Reminder | {ctx.Member.Username}",
+                Description = $"**Ok, I will remind you the following on {dateTime:dd.MM.yyyy HH:mm}:**\n{What}",
+                Color = Program.EmbedColor,
+                Footer = new DiscordEmbedBuilder.EmbedFooter { Text = "Made by JokinAce 😎" },
+                Timestamp = DateTimeOffset.Now
+            };
+            await ctx.RespondAsync(embed: Reminder);
 
             await cnn.ExecuteAsync("INSERT INTO Reminders (ID, ChannelID, Date, Reminder) VALUES (@id, @channelid, @date, @reminder)", new { id = ctx.Member.Id, channelid = ctx.Channel.Id, date = dateTime.ToBinary(), reminder = What }).ConfigureAwait(false);
 
@@ -36,15 +46,6 @@ namespace DiscordBotEthan.Commands {
                 using IDbConnection cnn = new SQLiteConnection(ConnString);
                 await cnn.ExecuteAsync("DELETE FROM Reminders WHERE Date=@date", new { date = dateTime.ToBinary() });
             });
-
-            DiscordEmbedBuilder Reminder = new DiscordEmbedBuilder {
-                Title = $"Reminder | {ctx.Member.Username}",
-                Description = $"**Ok, I will remind you the following on {dateTime:dd.MM.yyyy HH:mm}:**\n{What}",
-                Color = Program.EmbedColor,
-                Footer = new DiscordEmbedBuilder.EmbedFooter { Text = "Made by JokinAce 😎" },
-                Timestamp = DateTimeOffset.Now
-            };
-            await ctx.RespondAsync(embed: Reminder);
         }
     }
 }
