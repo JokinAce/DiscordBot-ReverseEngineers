@@ -1,11 +1,15 @@
-﻿using DSharpPlus;
+﻿using Dapper;
+using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.Entities;
 using JokinsCommon;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Data;
+using System.Data.SQLite;
 using System.Net;
 using System.Threading.Tasks;
+using System.Linq;
 using static DiscordBotEthan.Program;
 
 namespace DiscordBotEthan {
@@ -14,6 +18,41 @@ namespace DiscordBotEthan {
 
         public static Task Discord_Ready(DiscordClient dc, DSharpPlus.EventArgs.ReadyEventArgs args) {
             _ = Task.Run(async () => {
+                using IDbConnection cnn = new SQLiteConnection(ConnString);
+                var output = await cnn.QueryAsync("SELECT * FROM Reminders");
+                var Guild = await dc.GetGuildAsync(GuildID);
+
+                dc.Logger.LogInformation("Looking for Reminders");
+                if (output.Any()) {
+                    foreach (var item in output) {
+                        long ID = item.ID;
+                        long ChannelID = item.ChannelID;
+                        long Date = item.Date;
+                        string Reminder = item.Reminder;
+
+                        DiscordMember member = await Guild.GetMemberAsync((ulong)ID);
+                        DiscordChannel channel = Guild.GetChannel((ulong)ChannelID);
+                        DateTime dateTime = DateTime.FromBinary(Date);
+
+                        if (dateTime < DateTime.Now) {
+                            await cnn.ExecuteAsync("DELETE FROM Reminders WHERE Date=@date", new { date = Date });
+                            await channel.SendMessageAsync($":alarm_clock:, {member.Mention} you wanted me to remind you the following but I'm Late:\n\n{Reminder}");
+                            continue;
+                        }
+
+                        _ = Task.Run(async () => {
+                            await Task.Delay((int)dateTime.Subtract(DateTime.Now).TotalMilliseconds);
+                            await channel.SendMessageAsync($":alarm_clock:, {member.Mention} you wanted me to remind you the following:\n\n{Reminder}");
+
+                            using IDbConnection cnn = new SQLiteConnection(ConnString);
+                            await cnn.ExecuteAsync("DELETE FROM Reminders WHERE Date=@date", new { date = Date });
+                        });
+                    }
+                    dc.Logger.LogInformation("Found Reminders and started them");
+                } else {
+                    dc.Logger.LogInformation("No Reminders found");
+                }
+
                 while (true) {
                     foreach (var Status in Statuses) {
                         DiscordActivity activity = new DiscordActivity {
@@ -58,9 +97,12 @@ namespace DiscordBotEthan {
 
                 if (args.Message.Attachments.Count > 0) {
                     foreach (var attach in args.Message.Attachments) {
-                        if (attach.FileName.Contains("exe")) {
+                        if (attach.FileName.EndsWith("exe")) {
                             await args.Message.DeleteAsync("EXE File");
                             await Misc.Warn(args.Channel, args.Author, "Uploading a EXE File");
+                        } else if (attach.FileName.EndsWith("dll")) {
+                            await args.Message.DeleteAsync("DLL File");
+                            await Misc.Warn(args.Channel, args.Author, "Uploading a DLL File");
                         }
                     }
                 } else if (args.Message.Content.RemoveString(new string[] { " ", "." }).ToLower().Contains("discordgg")) {

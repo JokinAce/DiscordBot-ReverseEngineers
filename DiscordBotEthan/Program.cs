@@ -14,6 +14,7 @@ namespace DiscordBotEthan {
     internal class Program {
         public static DiscordClient discord;
         public static DiscordColor EmbedColor = new DiscordColor("#3299E0");
+        public static readonly ulong GuildID = 732774669115064370;
         public static readonly ulong MutedRole = 765286908133638204;
         public static readonly ulong LearnerRole = 734242782092329101;
         public static readonly string[] Statuses = { "Allah is watchin", "Despacito", "Fuck", "Janitor cleanup", "CSGO and Cheating", "EAC Bypass" };
