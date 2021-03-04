@@ -95,6 +95,8 @@ namespace DiscordBotEthan {
                         .SendAsync(args.Channel);
                 }
 
+                string stripped = args.Message.Content.RemoveString(" ", ".").ToLower();
+
                 if (args.Message.Attachments.Count > 0) {
                     foreach (var attach in args.Message.Attachments) {
                         if (attach.FileName.EndsWith("exe")) {
@@ -105,10 +107,10 @@ namespace DiscordBotEthan {
                             await Misc.Warn(args.Channel, args.Author, "Uploading a DLL File");
                         }
                     }
-                } else if (args.Message.Content.RemoveString(new string[] { " ", "." }).ToLower().Contains("discordgg")) {
+                } else if (stripped.Contains("discordgg")) {
                     await args.Message.DeleteAsync();
                     await Misc.Warn(args.Channel, args.Author, "Invite Link");
-                } else if (args.Message.Content.ToLower().Contains("nigger") || args.Message.Content.ToLower().Contains("nigga")) {
+                } else if (stripped.Contains("nigger") || stripped.Contains("nigga")) {
                     await Misc.Warn(args.Channel, args.Author, "Saying the N-Word");
 
                     await new DiscordMessageBuilder()
