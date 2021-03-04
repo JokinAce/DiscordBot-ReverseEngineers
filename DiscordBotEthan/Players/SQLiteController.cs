@@ -28,7 +28,7 @@ namespace DiscordBotEthan.Players {
 
             if (output == null) {
                 await cnn.ExecuteAsync($"INSERT INTO Players (ID) VALUES (@id)", new { id = ID }).ConfigureAwait(false);
-                return new Player();
+                output = await cnn.QuerySingleOrDefaultAsync($"SELECT * FROM Players WHERE ID=@id", new { id = ID }).ConfigureAwait(false);
             }
 
             long IDc = output.ID;
