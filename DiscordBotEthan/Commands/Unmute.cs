@@ -1,4 +1,5 @@
-﻿using DSharpPlus.CommandsNext;
+﻿using Dapper;
+using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using System;
@@ -10,10 +11,14 @@ namespace DiscordBotEthan.Commands {
 
         [Command("Unmute"), Description("Unmutes a Member")]
         public async Task UnmuteCommand(CommandContext ctx, [Description("The Member to unmute")] DiscordMember member) {
-            await member.RevokeRoleAsync(ctx.Guild.GetRole(Program.MutedRole));
-            var PS = await Players.SQLiteController.GetPlayer(member.Id);
+            var SQLC = new Players.SQLiteController();
+            var PS = await SQLC.GetPlayer(member.Id);
+
             PS.Muted = false;
+
             await PS.Save();
+            await SQLC.DeleteTempmutesWithID((long)member.Id);
+            await member.RevokeRoleAsync(ctx.Guild.GetRole(Program.MutedRole));
 
             DiscordEmbedBuilder Unmute = new DiscordEmbedBuilder {
                 Title = $"Unmute | {member.Username}",

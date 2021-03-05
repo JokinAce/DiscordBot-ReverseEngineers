@@ -18,10 +18,11 @@ namespace DiscordBotEthan {
 
         public static Task Discord_Ready(DiscordClient dc, DSharpPlus.EventArgs.ReadyEventArgs args) {
             _ = Task.Run(async () => {
-                using IDbConnection cnn = new SQLiteConnection(ConnString);
+                var SQLC = new Players.SQLiteController();
 
                 dc.Logger.LogInformation("Looking for Reminders");
-                var output = await cnn.QueryAsync("SELECT * FROM Reminders");
+                var output = await SQLC.GetReminders();
+
                 if (output.Any()) {
                     foreach (var item in output) {
                         long ID = item.ID;
@@ -36,7 +37,7 @@ namespace DiscordBotEthan {
                             DateTime dateTime = DateTime.FromBinary(Date);
 
                             if (dateTime < DateTime.Now) {
-                                await cnn.ExecuteAsync("DELETE FROM Reminders WHERE Date=@date", new { date = Date });
+                                await SQLC.DeleteRemindersWithDate(Date);
                                 await channel.SendMessageAsync($":alarm_clock:, {member.Mention} you wanted me to remind you the following but I'm Late:\n\n{Reminder}");
                                 continue;
                             }
@@ -50,11 +51,10 @@ namespace DiscordBotEthan {
 
                                 await channel.SendMessageAsync($":alarm_clock:, {member.Mention} you wanted me to remind you the following:\n\n{Reminder}");
 
-                                using IDbConnection cnn = new SQLiteConnection(ConnString);
-                                await cnn.ExecuteAsync("DELETE FROM Reminders WHERE Date=@date", new { date = Date });
+                                await SQLC.DeleteRemindersWithDate(Date);
                             });
                         } catch (Exception) {
-                            await cnn.ExecuteAsync("DELETE FROM Reminders WHERE Date=@date", new { date = Date });
+                            await SQLC.DeleteRemindersWithDate(Date);
                             continue;
                         }
                     }
@@ -64,7 +64,7 @@ namespace DiscordBotEthan {
                 }
 
                 dc.Logger.LogInformation("Looking for muted Members");
-                output = await cnn.QueryAsync("SELECT * FROM Tempmutes");
+                output = await SQLC.GetTempmutes();
                 if (output.Any()) {
 
                     foreach (var item in output) {
@@ -78,7 +78,7 @@ namespace DiscordBotEthan {
                             DateTime dateTime = DateTime.FromBinary(Date);
 
                             if (dateTime < DateTime.Now) {
-                                await cnn.ExecuteAsync("DELETE FROM Tempmutes WHERE ID=@id", new { id = ID });
+                                await SQLC.DeleteTempmutesWithID(ID);
                                 await member.RevokeRoleAsync(MutedRole);
                                 continue;
                             }
@@ -91,20 +91,18 @@ namespace DiscordBotEthan {
                                     DiscordRole MutedRole = Guild.GetRole(Program.MutedRole);
                                     DiscordMember member = await Guild.GetMemberAsync((ulong)ID);
 
-                                    var PS = await Players.SQLiteController.GetPlayer(member.Id);
+                                    var PS = await new Players.SQLiteController().GetPlayer(member.Id);
                                     PS.Muted = false;
                                     await PS.Save();
 
                                     await member.RevokeRoleAsync(MutedRole);
-
-                                    using IDbConnection cnn = new SQLiteConnection(ConnString);
-                                    await cnn.ExecuteAsync("DELETE FROM Tempmutes WHERE ID=@id", new { id = ID });
+                                    await SQLC.DeleteTempmutesWithID(ID);
                                 } catch (Exception) {
                                     dc.Logger.LogInformation($"Failed the Tempmute process for {member.Username + member.Discriminator}");
                                 }
                             });
                         } catch (Exception) {
-                            await cnn.ExecuteAsync("DELETE FROM Tempmutes WHERE ID=@id", new { id = ID });
+                            await SQLC.DeleteTempmutesWithID(ID);
                             continue;
                         }
                     }
@@ -133,7 +131,7 @@ namespace DiscordBotEthan {
                 if (args.Author.IsBot)
                     return;
 
-                var PS = await Players.SQLiteController.GetPlayer(args.Author.Id);
+                var PS = await new Players.SQLiteController().GetPlayer(args.Author.Id);
                 if (PS.LastMessages.Count > 1 && PS.LastMessages.Contains(args.Message.Content)) {
                     await Misc.Warn(args.Channel, args.Author, "Spamming");
                     PS.Warns.Add("Spamming");
@@ -186,14 +184,14 @@ namespace DiscordBotEthan {
         public static async Task Discord_GuildMemberAdded(DiscordClient dc, DSharpPlus.EventArgs.GuildMemberAddEventArgs args) {
             await args.Member.GrantRoleAsync(args.Guild.GetRole(LearnerRole));
 
-            var PS = await Players.SQLiteController.GetPlayer(args.Member.Id);
+            var PS = await new Players.SQLiteController().GetPlayer(args.Member.Id);
             if (PS.Muted) {
                 _ = Task.Run(async () => {
                     try {
                         DiscordRole MutedRole = args.Guild.GetRole(Program.MutedRole);
                         await args.Member.GrantRoleAsync(MutedRole);
                         await Task.Delay(86400000);
-                        var PS = await Players.SQLiteController.GetPlayer(args.Member.Id);
+                        var PS = await new Players.SQLiteController().GetPlayer(args.Member.Id);
                         PS.Muted = false;
                         await PS.Save();
                         await args.Member.RevokeRoleAsync(MutedRole);

@@ -9,7 +9,7 @@ namespace DiscordBotEthan {
     public static class Misc {
 
         public static async Task Warn(DiscordChannel channel, DiscordUser member, string reason) {
-            var WarnS = await Players.SQLiteController.GetPlayer(member.Id);
+            var WarnS = await new Players.SQLiteController().GetPlayer(member.Id);
 
             bool LocalMute = false;
 
@@ -21,7 +21,7 @@ namespace DiscordBotEthan {
                         await CMember.GrantRoleAsync(muterole);
                         await CMember.SendMessageAsync("You got muted for 24 Hours because you have equal or more then 3 Warns.");
                         await Task.Delay(86400000);
-                        var WarnS = await Players.SQLiteController.GetPlayer(member.Id);
+                        var WarnS = await new Players.SQLiteController().GetPlayer(member.Id);
                         WarnS.Muted = false;
                         await WarnS.Save();
                         await CMember.RevokeRoleAsync(muterole);
