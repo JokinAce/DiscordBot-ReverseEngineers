@@ -18,11 +18,11 @@ namespace DiscordBotEthan {
 
         public static Task Discord_Ready(DiscordClient dc, DSharpPlus.EventArgs.ReadyEventArgs args) {
             _ = Task.Run(async () => {
-                using IDbConnection cnn = new SQLiteConnection(ConnString);
                 var SQLC = new Players.SQLiteController();
 
                 dc.Logger.LogInformation("Looking for Reminders");
                 var output = await SQLC.GetReminders();
+
                 if (output.Any()) {
                     foreach (var item in output) {
                         long ID = item.ID;

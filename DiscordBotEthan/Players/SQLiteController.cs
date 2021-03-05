@@ -63,7 +63,7 @@ namespace DiscordBotEthan.Players {
         /// </summary>
         /// <returns>Dynamic List</returns>
 
-        public async Task<dynamic> GetReminders() {
+        public async Task<IEnumerable<dynamic>> GetReminders() {
             using IDbConnection cnn = new SQLiteConnection(ConnString);
             return await cnn.QueryAsync("SELECT * FROM Reminders").ConfigureAwait(false);
         }
@@ -88,7 +88,7 @@ namespace DiscordBotEthan.Players {
         /// </summary>
         /// <returns>Dynamic List</returns>
 
-        public async Task<dynamic> GetTempmutes() {
+        public async Task<IEnumerable<dynamic>> GetTempmutes() {
             using IDbConnection cnn = new SQLiteConnection(ConnString);
             return await cnn.QueryAsync("SELECT * FROM Tempmutes").ConfigureAwait(false);
         }
