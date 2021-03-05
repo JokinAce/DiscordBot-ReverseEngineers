@@ -18,6 +18,7 @@ namespace DiscordBotEthan {
         public static readonly ulong MutedRole = 765286908133638204;
         public static readonly ulong LearnerRole = 734242782092329101;
         public static readonly string[] Statuses = { "Allah is watchin", "Despacito", "Fuck", "Janitor cleanup", "CSGO and Cheating", "EAC Bypass" };
+        public static readonly ulong[] BlacklistedMembers = { 353243266579431424 };
         public static readonly string ConnString = @$"Data Source={Path.Join("Players","Players.db")}; Version=3;";
 
         private static void Main() {

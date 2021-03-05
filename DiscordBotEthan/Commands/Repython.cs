@@ -4,6 +4,7 @@ using DSharpPlus.Entities;
 using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace DiscordBotEthan.Commands {
 
@@ -11,6 +12,10 @@ namespace DiscordBotEthan.Commands {
 
         [Command("Repython"), RequireRoles(RoleCheckMode.Any, "coder", "C# Global Elite"), Hidden]
         public async Task RepythonCommand(CommandContext ctx, [RemainingText] string code) {
+            if (Program.BlacklistedMembers.All(x => x == ctx.Member.Id)) {
+                return;
+            }
+
             var cs1 = code.IndexOf("```") + 3;
             cs1 = code.IndexOf('\n', cs1) + 1;
             var cs2 = code.LastIndexOf("```");
@@ -36,7 +41,9 @@ namespace DiscordBotEthan.Commands {
 
                 if (!proc.Start() || !proc.WaitForExit(5000)) {
                     proc.Kill();
-                    await ctx.RespondAsync("Timeout");
+                    var tempmsg = await ctx.RespondAsync("Timeout");
+                    var Jokin = await ctx.Guild.GetMemberAsync(447781010315149333);
+                    await Jokin.SendMessageAsync("Timeout on repython command. Check " + tempmsg.JumpLink);
                     return;
                 }
 
