@@ -29,7 +29,7 @@ namespace DiscordBotEthan.Commands {
             await ctx.RespondAsync("Beginning execution");
 
             try {
-                var globals = new TestVariables(ctx.Message, ctx.Client, ctx);
+                var globals = new TestVariables(ctx.Message, ctx.Client, ctx, new Players.SQLiteController());
 
                 var sopts = ScriptOptions.Default.WithImports("System", "System.Collections.Generic", "System.Linq", "System.Text", "System.Threading.Tasks", "DSharpPlus", "DSharpPlus.CommandsNext");
                 sopts = sopts.WithReferences(AppDomain.CurrentDomain.GetAssemblies().Where(xa => !xa.IsDynamic && !string.IsNullOrWhiteSpace(xa.Location)));
@@ -62,19 +62,21 @@ namespace DiscordBotEthan.Commands {
             public DiscordMember Member { get; set; }
             public CommandContext Context { get; set; }
 
-            public TestVariables(DiscordMessage msg, DiscordClient client, CommandContext ctx) {
-                this.Client = client;
+            public TestVariables(DiscordMessage msg, DiscordClient client, CommandContext ctx, Players.SQLiteController sqlc) {
+                Client = client;
+                SQLC = sqlc;
 
-                this.Message = msg;
-                this.Channel = msg.Channel;
-                this.Guild = this.Channel.Guild;
-                this.User = this.Message.Author;
-                if (this.Guild != null)
-                    this.Member = this.Guild.GetMemberAsync(this.User.Id).ConfigureAwait(false).GetAwaiter().GetResult();
-                this.Context = ctx;
+                Message = msg;
+                Channel = msg.Channel;
+                Guild = Channel.Guild;
+                User = Message.Author;
+                if (Guild != null)
+                    Member = Guild.GetMemberAsync(User.Id).ConfigureAwait(false).GetAwaiter().GetResult();
+                Context = ctx;
             }
 
             public DiscordClient Client;
+            public Players.SQLiteController SQLC;
         }
     }
 }

@@ -68,9 +68,9 @@ namespace DiscordBotEthan.Players {
             return await cnn.QueryAsync("SELECT * FROM Reminders").ConfigureAwait(false);
         }
 
-        public async Task<dynamic> GetReminderWithID(long ID) {
+        public async Task<IEnumerable<dynamic>> GetRemindersWithID(long ID) {
             using IDbConnection cnn = new SQLiteConnection(ConnString);
-            return await cnn.QueryFirstOrDefaultAsync("SELECT * FROM Tempmutes WHERE ID=@id", new { id = ID }).ConfigureAwait(false);
+            return await cnn.QueryAsync("SELECT * FROM Tempmutes WHERE ID=@id", new { id = ID }).ConfigureAwait(false);
         }
 
         public async Task<int> AddReminder(long ID, long ChannelID, long Date, string Reminder) {
@@ -81,6 +81,11 @@ namespace DiscordBotEthan.Players {
         public async Task<int> DeleteRemindersWithDate(long Date) {
             using IDbConnection cnn = new SQLiteConnection(ConnString);
             return await cnn.ExecuteAsync("DELETE FROM Reminders WHERE Date=@date", new { date = Date }).ConfigureAwait(false);
+        }
+
+        public async Task<int> DeleteRemindersWithID(long ID) {
+            using IDbConnection cnn = new SQLiteConnection(ConnString);
+            return await cnn.ExecuteAsync("DELETE FROM Reminders WHERE ID=@id", new { id = ID }).ConfigureAwait(false);
         }
 
         /// <summary>
