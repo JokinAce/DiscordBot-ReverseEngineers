@@ -70,7 +70,7 @@ namespace DiscordBotEthan.Players {
 
         public async Task<IEnumerable<dynamic>> GetRemindersWithID(long ID) {
             using IDbConnection cnn = new SQLiteConnection(ConnString);
-            return await cnn.QueryAsync("SELECT * FROM Tempmutes WHERE ID=@id", new { id = ID }).ConfigureAwait(false);
+            return await cnn.QueryAsync("SELECT * FROM Reminders WHERE ID=@id", new { id = ID }).ConfigureAwait(false);
         }
 
         public async Task<int> AddReminder(long ID, long ChannelID, long Date, string Reminder) {

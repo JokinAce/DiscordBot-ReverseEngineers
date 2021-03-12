@@ -9,28 +9,36 @@ namespace DiscordBotEthan {
     public static class Misc {
 
         public static async Task Warn(DiscordChannel channel, DiscordUser member, string reason) {
-            var WarnS = await new Players.SQLiteController().GetPlayer(member.Id);
+            var SQLC = new Players.SQLiteController();
+            var WarnS = await SQLC.GetPlayer(member.Id);
 
             bool LocalMute = false;
 
             if ((WarnS.Warns.Count + 1) >= 3) {
-                _ = Task.Run(async () => {
-                    try {
-                        DiscordRole muterole = channel.Guild.GetRole(MutedRole);
-                        var CMember = await channel.Guild.GetMemberAsync(member.Id);
-                        await CMember.GrantRoleAsync(muterole);
-                        await CMember.SendMessageAsync("You got muted for 24 Hours because you have equal or more then 3 Warns.");
-                        await Task.Delay(86400000);
-                        var WarnS = await new Players.SQLiteController().GetPlayer(member.Id);
-                        WarnS.Muted = false;
-                        await WarnS.Save();
-                        await CMember.RevokeRoleAsync(muterole);
-                    } catch (Exception) {
-                        discord.Logger.LogInformation($"Failed the Warn Tempmute process for {member.Mention}");
-                    }
-                });
-                WarnS.Muted = true;
+                if (!WarnS.Muted) {
+                    await SQLC.AddTempmute((long)member.Id, DateTime.Now.AddMilliseconds(86400000).ToBinary());
+                    _ = Task.Run(async () => {
+                        try {
+                            var Guild = await discord.GetGuildAsync(GuildID);
+                            var MutedRole = Guild.GetRole(Program.MutedRole);
+                            var CMember = await Guild.GetMemberAsync(member.Id);
+                            await CMember.GrantRoleAsync(MutedRole);
+
+                            await Task.Delay(86400000);
+
+                            var PS = await SQLC.GetPlayer(member.Id);
+                            PS.Muted = false;
+                            await PS.Save();
+
+                            await SQLC.DeleteTempmutesWithID((long)member.Id);
+                            await CMember.RevokeRoleAsync(MutedRole);
+                        } catch (Exception) {
+                            discord.Logger.LogInformation($"Failed the Tempmute process for {member.Username + "#" + member.Discriminator}");
+                        }
+                    });
+                }
                 LocalMute = true;
+                WarnS.Muted = true;
             }
 
             DiscordEmbedBuilder Warns = new DiscordEmbedBuilder {
@@ -40,7 +48,7 @@ namespace DiscordBotEthan {
                 Footer = new DiscordEmbedBuilder.EmbedFooter { Text = "Made by JokinAce 😎" },
                 Timestamp = DateTimeOffset.Now
             };
-            var msg = await channel.SendMessageAsync(embed: Warns);
+            var msg = await channel.SendMessageAsync(Warns);
 
             WarnS.Warns.Add($"{reason} | [Event]({msg.JumpLink})");
             await WarnS.Save();

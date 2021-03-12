@@ -1,12 +1,8 @@
-﻿using Dapper;
-using DSharpPlus.CommandsNext;
+﻿using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Data;
-using System.Data.SQLite;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace DiscordBotEthan.Commands {
@@ -21,9 +17,8 @@ namespace DiscordBotEthan.Commands {
 
             var SQLC = new Players.SQLiteController();
             var PS = await SQLC.GetPlayer(member.Id);
-            var output = await SQLC.GetTempmuteWithID((long)ctx.Member.Id);
 
-            if (output != null) {
+            if (PS.Muted) {
                 await ctx.RespondAsync("That Member is already muted");
                 return;
             }
