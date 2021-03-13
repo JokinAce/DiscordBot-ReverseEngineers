@@ -1,15 +1,18 @@
 ﻿using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
+using DSharpPlus.Interactivity.Extensions;
 using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace DiscordBotEthan.Commands {
 
     public class Repython : BaseCommandModule {
+        private readonly string[] BlacklistedCode = { "os", "socket", "importlib", "sys", "subprocess", "asyncore", "hostname", "ping", "shutdown", "system" };
 
-        [Command("Repython"), RequireRoles(RoleCheckMode.Any, "coder", "C# Global Elite"), Hidden]
+        [Command("Repython"), Cooldown(2, 10, CooldownBucketType.User), RequireRoles(RoleCheckMode.Any, "coder", "C# Global Elite"), Hidden]
         public async Task RepythonCommand(CommandContext ctx, [RemainingText] string code) {
             var cs1 = code.IndexOf("```") + 3;
             cs1 = code.IndexOf('\n', cs1) + 1;
@@ -21,12 +24,26 @@ namespace DiscordBotEthan.Commands {
             }
 
             var cs = code[cs1..cs2].Replace("\"", "'");
+
+            if (Program.BlacklistedMembers.Any(x => x == ctx.Member.Id)) {
+                await ctx.RespondAsync("You are blacklisted");
+                return;
+            } else if (BlacklistedCode.Any(x => cs.Contains(x))) {
+                await ctx.RespondAsync($"Something doesn't seem right.. <@{Program.BotOwner}> verify this");
+
+                var msg = await ctx.Channel.GetNextMessageAsync(x => x.Author.Id == Program.BotOwner);
+                if (msg.Result.Content.ToLower() != "verified" || msg.TimedOut) {
+                    await ctx.RespondAsync("Bot Owner didn't verify of execution");
+                    return;
+                }
+            }
+
             await ctx.RespondAsync("Beginning execution");
 
             try {
                 var proc = new Process {
                     StartInfo = new ProcessStartInfo {
-                        FileName = "python",
+                        FileName = "python3",
                         Arguments = $"-c \"{cs}\"",
                         UseShellExecute = false,
                         RedirectStandardOutput = true,
@@ -36,7 +53,9 @@ namespace DiscordBotEthan.Commands {
 
                 if (!proc.Start() || !proc.WaitForExit(5000)) {
                     proc.Kill();
-                    await ctx.RespondAsync("Timeout");
+                    var tempmsg = await ctx.RespondAsync("Timeout");
+                    var Jokin = await ctx.Guild.GetMemberAsync(Program.BotOwner);
+                    await Jokin.SendMessageAsync("Timeout on repython command. Check\n" + tempmsg.JumpLink);
                     return;
                 }
 

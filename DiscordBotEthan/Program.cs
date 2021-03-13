@@ -3,6 +3,8 @@ using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Converters;
 using DSharpPlus.CommandsNext.Entities;
 using DSharpPlus.Entities;
+using DSharpPlus.Interactivity;
+using DSharpPlus.Interactivity.Extensions;
 using Microsoft.Extensions.Logging;
 using System;
 using System.IO;
@@ -14,11 +16,13 @@ namespace DiscordBotEthan {
     internal class Program {
         public static DiscordClient discord;
         public static DiscordColor EmbedColor = new DiscordColor("#3299E0");
+        public static readonly ulong BotOwner = 447781010315149333;
         public static readonly ulong GuildID = 732774669115064370;
         public static readonly ulong MutedRole = 765286908133638204;
         public static readonly ulong LearnerRole = 734242782092329101;
         public static readonly string[] Statuses = { "Allah is watchin", "Despacito", "Fuck", "Janitor cleanup", "CSGO and Cheating", "EAC Bypass" };
-        public static readonly string ConnString = @$"Data Source={Path.Join("Players","Players.db")}; Version=3;";
+        public static readonly ulong[] BlacklistedMembers = { 353243266579431424, 566653752451399700 };
+        public static readonly string ConnString = @$"Data Source={Path.Join("Players", "Players.db")}; Version=3;";
 
         private static void Main() {
             Console.WriteLine("Starting Checks");
@@ -45,6 +49,10 @@ namespace DiscordBotEthan {
 
             CommandsNextExtension commands = discord.UseCommandsNext(new CommandsNextConfiguration() {
                 StringPrefixes = new[] { "." }
+            });
+
+            InteractivityExtension interactivity = discord.UseInteractivity(new InteractivityConfiguration {
+                Timeout = TimeSpan.FromMinutes(10)
             });
 
             discord.Ready += EventHandlers.Discord_Ready;

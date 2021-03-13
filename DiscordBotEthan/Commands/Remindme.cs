@@ -2,14 +2,8 @@
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using System;
-using System.Threading.Tasks;
 using System.Linq;
-using static DiscordBotEthan.Players.SQLiteController;
-using static DiscordBotEthan.Program;
-using System.Data.SQLite;
-using System.Data;
-using Dapper;
-using Microsoft.Extensions.Logging;
+using System.Threading.Tasks;
 
 namespace DiscordBotEthan.Commands {
 
@@ -69,12 +63,6 @@ namespace DiscordBotEthan.Commands {
             DateTime dateTime = DateTime.Now.AddMilliseconds(Time);
 
             var SQLC = new Players.SQLiteController();
-            var output = await SQLC.GetRemindersWithID((long)member.Id);
-
-            if (output.Count() == 1) {
-                await ctx.RespondAsync("He already has a Reminder running");
-                return;
-            }
 
             DiscordEmbedBuilder Reminder = new DiscordEmbedBuilder {
                 Title = $"Reminder | {member.Username}",

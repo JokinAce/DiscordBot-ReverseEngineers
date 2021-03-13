@@ -1,15 +1,12 @@
-﻿using Dapper;
-using DSharpPlus;
+﻿using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.Entities;
 using JokinsCommon;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Data;
-using System.Data.SQLite;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using System.Linq;
 using static DiscordBotEthan.Program;
 
 namespace DiscordBotEthan {
@@ -66,7 +63,6 @@ namespace DiscordBotEthan {
                 dc.Logger.LogInformation("Looking for muted Members");
                 output = await SQLC.GetTempmutes();
                 if (output.Any()) {
-
                     foreach (var item in output) {
                         long ID = item.ID;
                         long Date = item.Date;
@@ -91,7 +87,7 @@ namespace DiscordBotEthan {
                                     DiscordRole MutedRole = Guild.GetRole(Program.MutedRole);
                                     DiscordMember member = await Guild.GetMemberAsync((ulong)ID);
 
-                                    var PS = await new Players.SQLiteController().GetPlayer(member.Id);
+                                    var PS = await SQLC.GetPlayer(member.Id);
                                     PS.Muted = false;
                                     await PS.Save();
 
